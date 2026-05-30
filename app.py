@@ -9,7 +9,7 @@ app = Flask(__name__)
 # 建議做法：從電腦環境變數中讀取 API Key (推薦)
 # 如果你暫時不會設定環境變數，可以先把 os.environ.get(...) 換成 "你的_API_KEY_字串"
 # 但請記得，上傳到 GitHub 前一定要拿掉！
-API_KEY = API_KEY = os.environ.get("GEMINI_API_KEY")
+API_KEY = os.environ.get("GEMINI_API_KEY")
 
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-3.5-flash")
