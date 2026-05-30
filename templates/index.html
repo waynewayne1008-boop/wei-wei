@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>我的網路用語小卡</title>
+  <style>
+    body { font-family: sans-serif; background: #faf9f7; padding: 24px;
+           max-width: 480px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 14px; padding: 20px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.06); margin-bottom: 16px; }
+    .word { font-size: 26px; font-weight: 500; }
+    .pinyin { color: #888; margin: 4px 0; font-size: 13px; }
+    .meaning { background: #EEEDFE; padding: 8px 12px; border-radius: 8px;
+               margin-top: 10px; font-size: 14px; }
+    .example { color: #5c5c58; font-style: italic; margin-top: 8px; font-size: 13px; }
+    button { background: #534AB7; color: #fff; border: none;
+             padding: 10px 16px; border-radius: 20px; cursor: pointer;
+             margin-right: 6px; font-size: 13px; }
+    button.sec { background: #f0efe9; color: #1a1a18; }
+  </style>
+</head>
+<body>
+  <h2>網路用語學習小卡</h2>
+  <div class="card" id="output">
+    點下方按鈕，AI 幫你出一張新卡片...
+  </div>
+  <button onclick="makeCard()">下一張 →</button>
+  <button class="sec" onclick="speak()">🔊 念給我聽</button>
+
+  <script>
+    // ── 🔒 安全更新：API_KEY、Prompt、Google 網址已移至後端 ──
+    const SPEECH_LANG = "zh-TW";
+    let currentWord = "";
+
+    async function makeCard() {
+      // 顯示載入中狀態
+      document.getElementById("output").innerHTML = "AI 正在為您生成卡片，請稍候...";
+      
+      try {
+        // 呼叫你自己的後端 API，這不需要帶有任何密鑰，因此非常安全！
+        const res = await fetch("/api/make_card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        // 攔截並印出錯誤訊息
+        if (!res.ok) {
+          const errorDetail = await res.text();
+          throw new Error(`HTTP ${res.status} - ${errorDetail}`);
+        }
+
+        // 直接接收後端已經整理好的 JSON 資料
+        const card = await res.json();
+        currentWord = card.word;
+
+        // 將成功的結果渲染到網頁上
+        document.getElementById("output").innerHTML = `
+          <div class="word">${card.word}</div>
+          <div class="pinyin">${card.pinyin}</div>
+          <div class="meaning">${card.meaning}</div>
+          <div class="example">${card.example}</div>`;
+          
+      } catch (error) {
+        console.error("抓到錯誤了:", error);
+        document.getElementById("output").innerHTML = `
+          <div style="color: red; font-weight: bold;">
+            卡片生成失敗 ❌
+          </div>
+          <div style="color: #333; margin-top: 8px; font-size: 14px; word-break: break-all;">
+            <strong>錯誤細節：</strong><br>
+            ${error.message}
+          </div>`;
+      }
+    }
+
+    function speak() {
+      if (!currentWord) return;
+      const u = new SpeechSynthesisUtterance(currentWord);
+      u.lang = SPEECH_LANG;
+      speechSynthesis.speak(u);
+    }
+  </script>
+</body>
+</html>
