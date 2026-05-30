@@ -12,7 +12,16 @@ app = Flask(__name__)
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel("gemini-3.5-flash")
+
+# 加入設定，讓 AI 每次的回答都有隨機性
+generation_config = {
+    "temperature": 1.0,  # 數字越高，AI 越隨機、越不會重複（範圍 0.0 ~ 2.0）
+}
+
+model = genai.GenerativeModel(
+    model_name="gemini-3.5-flash",
+    generation_config=generation_config
+)
 
 LANGUAGE = "流行用語"
 
